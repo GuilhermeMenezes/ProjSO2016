@@ -2,8 +2,10 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #define atrasar() sleep(ATRASO)
+int warning = 0;
 
 int contasSaldos[NUM_CONTAS];
 
@@ -46,18 +48,14 @@ int lerSaldo(int idConta) {
 void simular(int numAnos) {
 	int custo_manutencao = 1;
 	float taxa_juros = 0.10;
-	int j,l,i;
-	int saldoAsomar;
 	int saldoNovo;
+	int i;
+	int j;
+	int saldoAsomar;
+	
 
-	for (l = 0; l < NUM_CONTAS; l++) {
+	for (i = 0; i <= numAnos && warning != 1; i++) {
 		printf("SIMULACAO: Ano %d \n", i);
-
-	}
-
-	for (i = 0; i <= numAnos; i++) {
-		printf("SIMULACAO: Ano %d \n", i);
-
 		for (j = 1; j <= NUM_CONTAS; j++) {
 			int saldoAnterior = lerSaldo(j);
 			if (i == 0) {
@@ -66,11 +64,12 @@ void simular(int numAnos) {
 				if (saldoAnterior * (1 + taxa_juros) - custo_manutencao <= 0) {
 					saldoNovo = 0;
 				} else {
-					saldoAsomar = saldoAnterior * taxa_juros - custo_manutencao;
-					creditar(j,saldoAsomar);
+					saldoAsomar = (saldoAnterior *  taxa_juros)
+							- custo_manutencao;
+					creditar (j, saldoAsomar);
 					saldoNovo = saldoAnterior + saldoAsomar;
 				}
-	
+				
 				//	saldoNovo = max(saldoAnterior * (1 + taxa_juros) - custo_manutencao, 0);
 
 				printf("Conta  %d, Saldo %d\n", j, saldoNovo);
@@ -79,7 +78,11 @@ void simular(int numAnos) {
 
 	}
 }
-
+void sairAgora(int signum){
+	printf("entrei");
+	warning = 1;
+	
+}
 
 
 int meu_fork(int numAnos){
@@ -87,23 +90,37 @@ int meu_fork(int numAnos){
 	pid = fork();
 	
 	if (pid == 0) {
-	 // child process
+	 signal(SIGUSR2, sairAgora);
 	 simular(numAnos);
 	 exit(0);
 	}
 	
 	else if (pid > 0) {
-	 // parent process
+		//kill(0, SIGUSR2);
+		//signal(SIGUSR2, SIG_IGN);
+	 
+	 
+	 
 	 }
-	else if (pid < 0){
-		printf("fork() failed! \n");
-		return 1
-
+	else if (pid < 0) {
+		printf("fork() failed!\n");
+		return 1;
 	}
 	return pid;
 }
 
-/*
+
+
+/*void sairAgora(int signum){
+	
+	{
+	   printf("Caught signal %d, coming out...\n", signum);
+	   exit(1);
+	}
+}
+
+
+
 
  
 
@@ -118,7 +135,7 @@ void sairAgora(){
 	
  
  
- 	 
+ 	ter em atencao que o processo pai pode enviar um signal e os filhos nao sabem o que ele faz. 
  
  }
  

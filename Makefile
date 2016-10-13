@@ -1,4 +1,5 @@
 
+
 main: commandlinereader.o contas.o i-banco.o
 	gcc -O4 -o main commandlinereader.o contas.o i-banco.o 
 
