@@ -40,23 +40,18 @@ int main(int argc, char** argv) {
 
 			int returnStatus;
 
-			if (numSimulacoes == 0){
-				printf("0 processos por terminar antes de sair.");
-			}
-			else{	
-				while (numSimulacoes != 0){
+			while (numSimulacoes != 0){
 
-					pid = wait(&returnStatus); // Parent process waits here for child to terminate.
+				pid = wait(&returnStatus); // Parent process waits here for child to terminate.
 
-					if (returnStatus == 0) { // Verify child process terminated without error.   
-						printf("FILHO TERMINADO: %d ; terminou normalmente \n", pid);
-					}
-					//duvida******
-					if (returnStatus == 1) {
-						printf("FILHO TERMINADO: %d; terminou abruptamente \n", pid);
-					}
-					numSimulacoes -= 1;
+				if (returnStatus == 0) { // Verify child process terminated without error.   
+					printf("FILHO TERMINADO: %d ; terminou normalmente \n", pid);
 				}
+				//duvida******
+				if (returnStatus == 1) {
+					printf("FILHO TERMINADO: %d; terminou abruptamente \n", pid);
+				}
+					numSimulacoes -= 1;
 			}
 
 			exit (EXIT_SUCCESS);
