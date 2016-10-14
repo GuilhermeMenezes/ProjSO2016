@@ -1,4 +1,4 @@
-/*
+/* Grupo 39
  // Projeto SO - exercicio 1, version 1
  // Sistemas Operativos, DEI/IST/ULisboa 2016-17
  */
@@ -10,6 +10,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define COMANDO_DEBITAR "debitar"
 #define COMANDO_CREDITAR "creditar"
@@ -24,7 +26,10 @@
 int main(int argc, char** argv) {
 	int pid = 0;
 	int numSimulacoes = 0;
-	int warning = 0;
+	int listaFilhos[20];
+	int contador = 0;
+	int i;
+	
 
 	char *args[MAXARGS + 1];
 	char buffer[BUFFER_SIZE];
@@ -43,9 +48,13 @@ int main(int argc, char** argv) {
 				|| (numargs > 0 && (strcmp(args[0], COMANDO_SAIR) == 0))) {
 			int returnStatus;
 			
-				if ((numargs > 1 && (strcmp(args[1], COMANDO_AGORA) == 0))) {
-					kill(pid, SIGUSR2);
+			if ((numargs > 1 && (strcmp(args[1], COMANDO_AGORA) == 0))) {
+				for(i=0;i<contador; i++){
+					kill(listaFilhos[contador], SIGUSR2);
 				}
+			}
+			printf("O i-banco vai terminar.\n");
+			printf("--\n");
 			while(numSimulacoes != 0){
 				pid = wait(&returnStatus); // Parent process waits here for child to terminate.
 				if (WIFEXITED(returnStatus)) { // Verify child process terminated without error.   
@@ -60,6 +69,9 @@ int main(int argc, char** argv) {
 				numSimulacoes -= 1;
 			
 			}
+			printf("--\n");
+			printf("O i-banco terminou.\n");
+			
 			exit (EXIT_SUCCESS);
 		}
 			
@@ -131,6 +143,8 @@ int main(int argc, char** argv) {
 				return -1;
 			} else
 				pid = meu_fork(numAnos);
+				listaFilhos[contador] = pid;
+				contador += 1;
 
 			
 		}

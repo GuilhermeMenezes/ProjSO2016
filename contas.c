@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <signal.h>
 
+
 #define atrasar() sleep(ATRASO)
 int warning = 0;
 
@@ -52,10 +53,10 @@ void simular(int numAnos) {
 	int i;
 	int j;
 	int saldoAsomar;
-	
 
 	for (i = 0; i <= numAnos && warning != 1; i++) {
 		printf("SIMULACAO: Ano %d \n", i);
+		printf("-----------------\n");
 		for (j = 1; j <= NUM_CONTAS; j++) {
 			int saldoAnterior = lerSaldo(j);
 			if (i == 0) {
@@ -64,13 +65,11 @@ void simular(int numAnos) {
 				if (saldoAnterior * (1 + taxa_juros) - custo_manutencao <= 0) {
 					saldoNovo = 0;
 				} else {
-					saldoAsomar = (saldoAnterior *  taxa_juros)
+					saldoAsomar = (saldoAnterior * taxa_juros)
 							- custo_manutencao;
-					creditar (j, saldoAsomar);
+					creditar(j, saldoAsomar);
 					saldoNovo = saldoAnterior + saldoAsomar;
 				}
-				
-				//	saldoNovo = max(saldoAnterior * (1 + taxa_juros) - custo_manutencao, 0);
 
 				printf("Conta  %d, Saldo %d\n", j, saldoNovo);
 			}
@@ -78,89 +77,27 @@ void simular(int numAnos) {
 
 	}
 }
-void sairAgora(int signum){
-	printf("entrei");
+void sairAgora(int signum) {
 	warning = 1;
-	
+
 }
 
-
-int meu_fork(int numAnos){
+int meu_fork(int numAnos) {
 	int pid = 0;
+	signal(SIGUSR2, sairAgora);
 	pid = fork();
-	
 	if (pid == 0) {
-	 signal(SIGUSR2, sairAgora);
-	 simular(numAnos);
-	 exit(0);
+		simular(numAnos);
+		printf("Simulacao terminada por signal\n");
+		exit(0);
 	}
-	
+
 	else if (pid > 0) {
-		//kill(0, SIGUSR2);
-		//signal(SIGUSR2, SIG_IGN);
-	 
-	 
-	 
-	 }
-	else if (pid < 0) {
+
+	} else if (pid < 0) {
 		printf("fork() failed!\n");
 		return 1;
 	}
 	return pid;
 }
-
-
-
-/*void sairAgora(int signum){
-	
-	{
-	   printf("Caught signal %d, coming out...\n", signum);
-	   exit(1);
-	}
-}
-
-
-
-
- 
-
- int status = 0;
- int wpid;
- 
-void sairAgora(){
-
-	teremos que fazer get_pid? para achar o pid do processo que queremos terminar? OU É 0?
-	No chrome tens uma página aberta com o kill ( matar processos tendo o pid) mas não sei se não é para ser 
-	usado só no terminal, eu acho que não pq está no enunciado que devemos usar o comando kill
-	
- 
- 
- 	ter em atencao que o processo pai pode enviar um signal e os filhos nao sabem o que ele faz. 
- 
- }
- 
-
- }
- else if (pid > 0) {
- // parent process
- pid = getpid();
- wpid = wait(&status);
- while ((wpid = wait(&status)) > 0){
- 
- }
- printf("i-banco terminou.");
- }
- 
- else {
- // fork failed
- printf("fork() failed!\n");
- return 1;
- }
-
- printf("--end of program--\n");
-
- return 0;
- }
-
- */
 
