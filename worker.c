@@ -1,11 +1,19 @@
-void worker(void *arg){
-	if (*arg == OP_DEBITAR){
+#include "cmd.h"
+#include "buffer.h"
+#include "includes.h"
+
+void worker(){
+
+	comando_t executa;
+	executa = buff_pop();
+
+	if (executa.operacao == OP_DEBITAR){
 		debitar(executa.idConta, executa.valor);
 	}
-	if (*arg == OP_CREDITAR){
+	if (executa.operacao == OP_CREDITAR){
 		creditar(executa.idConta, executa.valor);
 	}
-	if (*arg == OP_LERSALDO){
+	if (executa.operacao == OP_LERSALDO){
 		lerSaldo(executa.idConta);
 	}
 }

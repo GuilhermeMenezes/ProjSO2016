@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-
+#include <semaphore.h>
+#include <pthread.h>
 
 #define atrasar() sleep(ATRASO)
 int warning = 0;

@@ -12,22 +12,12 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <buffer.h>
-#include <cmd.h>
+#include "buffer.h"
+#include "includes.h"
+#include <semaphore.h>
+#include <pthread.h>
 
-#define COMANDO_DEBITAR "debitar"
-#define COMANDO_CREDITAR "creditar"
-#define COMANDO_LER_SALDO "lerSaldo"
-#define COMANDO_SIMULAR "simular"
-#define COMANDO_SAIR "sair"
-#define COMANDO_AGORA "agora"
 
-#define MAXARGS 3
-#define BUFFER_SIZE 100
-
-#define OP_DEBITAR 2
-#define OP_CREDITAR 1
-#define OP_LERSALDO 0
 
 int main(int argc, char** argv) {
 	int pid = 0;
@@ -36,7 +26,12 @@ int main(int argc, char** argv) {
 	int contador = 0;
 	int i;
 
-	comando_t executa;
+	
+	pthread_mutex_init(&mutex, NULL);
+	sem_init(&semCanInsert,0, CMD_BUFFER_DIM);
+	sem_init(&semCanPop, 0, 0);
+
+
 	char *args[MAXARGS + 1];
 	char buffer[BUFFER_SIZE];
 
@@ -100,7 +95,6 @@ int main(int argc, char** argv) {
 			cmd2.valor = atoi(args[2]);
 			
 			buff_insert(cmd2);
-			executa = buff_pop();			
 
 			idConta = atoi(args[1]);
 			valor = atoi(args[2]);
