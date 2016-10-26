@@ -12,6 +12,8 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <buffer.h>
+#include <cmd.h>
 
 #define COMANDO_DEBITAR "debitar"
 #define COMANDO_CREDITAR "creditar"
@@ -23,14 +25,18 @@
 #define MAXARGS 3
 #define BUFFER_SIZE 100
 
+#define OP_DEBITAR 2
+#define OP_CREDITAR 1
+#define OP_LERSALDO 0
+
 int main(int argc, char** argv) {
 	int pid = 0;
 	int numSimulacoes = 0;
 	int listaFilhos[20];
 	int contador = 0;
 	int i;
-	
 
+	comando_t executa;
 	char *args[MAXARGS + 1];
 	char buffer[BUFFER_SIZE];
 
@@ -88,6 +94,13 @@ int main(int argc, char** argv) {
 						COMANDO_DEBITAR);
 				continue;
 			}
+			comando_t cmd2;
+			cmd2.operacao = OP_DEBITAR;
+			cmd2.idConta = atoi(args[1]);
+			cmd2.valor = atoi(args[2]);
+			
+			buff_insert(cmd2);
+			executa = buff_pop();			
 
 			idConta = atoi(args[1]);
 			valor = atoi(args[2]);

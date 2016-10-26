@@ -94,10 +94,12 @@ int meu_fork(int numAnos) {
 
 	else if (pid > 0) {
 
-	} else if (pid < 0) {
+	} 
+	else if (pid < 0) {
 		printf("fork() failed!\n");
 		return 1;
 	}
 	return pid;
 }
+
 
