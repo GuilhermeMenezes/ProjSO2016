@@ -126,14 +126,13 @@ int main(int argc, char** argv) {
 			
 			buff_insert(cmd2);
 
+			//idConta = atoi(args[1]);
+		    //valor = atoi(args[2]);
 
-			idConta = atoi(args[1]);
-			valor = atoi(args[2]);
-
-			if (debitar(idConta, valor) < 0)
+			/*if (debitar(idConta, valor) < 0)
 				printf("%s(%d, %d): Erro\n\n", COMANDO_DEBITAR, idConta, valor);
 			else
-				printf("%s(%d, %d): OK\n\n", COMANDO_DEBITAR, idConta, valor);
+				printf("%s(%d, %d): OK\n\n", COMANDO_DEBITAR, idConta, valor);*/
 		}
 
 		/* Creditar */
@@ -145,8 +144,13 @@ int main(int argc, char** argv) {
 				continue;
 			}
 
+			comando_t cmd1;
+			cmd1.operacao = OP_CREDITAR;
+			cmd1.idConta = atoi(args[1]);
+			cmd1.valor = atoi(args[2]);
 			
-			idConta = atoi(args[1]);
+			buff_insert(cmd1);
+			/**idConta = atoi(args[1]);
 			valor = atoi(args[2]);
 
 			if (creditar(idConta, valor) < 0)
@@ -154,6 +158,7 @@ int main(int argc, char** argv) {
 						valor);
 			else
 				printf("%s(%d, %d): OK\n\n", COMANDO_CREDITAR, idConta, valor);
+				*/
 		}
 
 		/* Ler Saldo */
@@ -165,14 +170,23 @@ int main(int argc, char** argv) {
 						COMANDO_LER_SALDO);
 				continue;
 			}
-
-			idConta = atoi(args[1]);
-			saldo = lerSaldo(idConta);
+			
+			comando_t cmd0;
+			cmd0.operacao = OP_LERSALDO;
+			cmd0.idConta = atoi(args[1]);
+			cmd0.valor = NULL;
+			
+			buff_insert(cmd0);
+			//saldo = lerSaldo(cmd0.idConta);
+			/*idConta = atoi(args[1]);
+			;
+			
 			if (saldo < 0)
 				printf("%s(%d): Erro.\n\n", COMANDO_LER_SALDO, idConta);
 			else
 				printf("%s(%d): O saldo da conta é %d.\n\n", COMANDO_LER_SALDO,
 						idConta, saldo);
+						*/
 		}
 
 		/* Simular */
