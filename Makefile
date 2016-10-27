@@ -1,6 +1,6 @@
 
 
-main: commandlinereader.o contas.o i-banco.o worker.o buffer.o
+main-make: commandlinereader.o contas.o i-banco.o worker.o buffer.o
 	gcc -pthread -O4 -o main commandlinereader.o contas.o i-banco.o worker.o buffer.o
 
 commandlinereader.o: commandlinereader.c commandlinereader.h

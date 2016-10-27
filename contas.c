@@ -58,6 +58,7 @@ void simular(int numAnos) {
 	for (i = 0; i <= numAnos && warning != 1; i++) {
 		printf("SIMULACAO: Ano %d \n", i);
 		printf("-----------------\n");
+		printf("WARNING = %d\n",warning );
 		for (j = 1; j <= NUM_CONTAS; j++) {
 			int saldoAnterior = lerSaldo(j);
 			if (i == 0) {
@@ -78,16 +79,21 @@ void simular(int numAnos) {
 
 	}
 }
+
+//SE o prof nao conseguir responder confirmar com o Fernando
 void sairAgora(int signum) {
+	printf("ENTREI NA FUNCAO SAIR AGORA PARA MUDAR O VALOR DO WARNING.\n");
 	warning = 1;
+	printf("MUDEI O WARNING PARA 1.\n");
 
 }
 
 int meu_fork(int numAnos) {
 	int pid = 0;
-	signal(SIGUSR2, sairAgora);
 	pid = fork();
+	signal(SIGUSR2, sairAgora);
 	if (pid == 0) {
+	//	signal(SIGUSR2, sairAgora);
 		simular(numAnos);
 		printf("Simulacao terminada por signal\n");
 		exit(0);

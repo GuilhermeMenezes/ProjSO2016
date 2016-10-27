@@ -2,7 +2,7 @@
 #include "buffer.h"
 #include "includes.h"
 
-void worker(){
+void *worker(void *arg){
 
 	comando_t executa;
 	executa = buff_pop();

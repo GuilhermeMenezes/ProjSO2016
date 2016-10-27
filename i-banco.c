@@ -16,20 +16,31 @@
 #include "includes.h"
 #include <semaphore.h>
 #include <pthread.h>
-
+#include "worker.h"
 
 
 int main(int argc, char** argv) {
 	int pid = 0;
 	int numSimulacoes = 0;
 	int listaFilhos[20];
-	int contador = 0;
+	
 	int i;
+	pthread_t tid1;
+	pthread_t tid2;
+	pthread_t tid3;
 
 	
 	pthread_mutex_init(&mutex, NULL);
-	sem_init(&semCanInsert,0, CMD_BUFFER_DIM);
-	sem_init(&semCanPop, 0, 0);
+
+	if (sem_init(&semCanInsert,0, CMD_BUFFER_DIM) != 0){
+		printf("Error creating semaphore\n");
+		exit(EXIT_FAILURE);
+	}
+	if (sem_init(&semCanPop, 0, 0) != 0){
+		printf("Error creating semaphore\n");
+		exit(EXIT_FAILURE);
+	}
+	
 
 
 	char *args[MAXARGS + 1];
@@ -38,6 +49,7 @@ int main(int argc, char** argv) {
 	inicializarContas();
 
 	printf("Bem-vinda/o ao i-banco\n\n");
+
 
 	while (1) {
 		int numargs;
@@ -50,13 +62,17 @@ int main(int argc, char** argv) {
 			int returnStatus;
 			
 			if ((numargs > 1 && (strcmp(args[1], COMANDO_AGORA) == 0))) {
-				for(i=0;i<contador; i++){
-					kill(listaFilhos[contador], SIGUSR2);
+				for(i=0;i<numSimulacoes; i++){
+					printf("VOU MANDAR O SINAL PARA TERMINAR OS FILHOS.\n");
+					kill(listaFilhos[i], SIGUSR2);
+					printf("MANDEI O SINAL PARA TERMINAR OS FILHOS.\n");
 				}
 			}
+
 			printf("O i-banco vai terminar.\n");
 			printf("--\n");
-			while(numSimulacoes != 0){
+			
+			for(i=0;i<numSimulacoes; i++){
 				pid = wait(&returnStatus); // Parent process waits here for child to terminate.
 				if (WIFEXITED(returnStatus)) { // Verify child process terminated without error.   
 					printf("FILHO TERMINADO: %d ; terminou normalmente \n", pid);
@@ -64,12 +80,9 @@ int main(int argc, char** argv) {
 			
 				else
 					printf("FILHO TERMINADO: %d; terminou abruptamente \n", pid);
-				
-
-				
-				numSimulacoes -= 1;
 			
 			}
+			
 			printf("--\n");
 			printf("O i-banco terminou.\n");
 			
@@ -89,12 +102,19 @@ int main(int argc, char** argv) {
 						COMANDO_DEBITAR);
 				continue;
 			}
+
+			if (pthread_create(&tid1, NULL, worker, NULL) != 0){
+				printf("Error creating thread.\n");
+				exit(EXIT_FAILURE);
+			}
+
 			comando_t cmd2;
 			cmd2.operacao = OP_DEBITAR;
 			cmd2.idConta = atoi(args[1]);
 			cmd2.valor = atoi(args[2]);
 			
 			buff_insert(cmd2);
+
 
 			idConta = atoi(args[1]);
 			valor = atoi(args[2]);
@@ -112,6 +132,11 @@ int main(int argc, char** argv) {
 				printf("%s: Sintaxe inválida, tente de novo.\n",
 						COMANDO_CREDITAR);
 				continue;
+			}
+
+			if (pthread_create(&tid2, NULL, worker, NULL) != 0){
+				printf("Error creating thread.\n");
+				exit(EXIT_FAILURE);
 			}
 
 			idConta = atoi(args[1]);
@@ -133,6 +158,13 @@ int main(int argc, char** argv) {
 						COMANDO_LER_SALDO);
 				continue;
 			}
+
+
+			if (pthread_create(&tid3, NULL, worker, NULL) != 0){
+				printf("Error creating thread.\n");
+				exit(EXIT_FAILURE);
+			}
+
 			idConta = atoi(args[1]);
 			saldo = lerSaldo(idConta);
 			if (saldo < 0)
@@ -145,13 +177,12 @@ int main(int argc, char** argv) {
 		/* Simular */
 		else if (strcmp(args[0], COMANDO_SIMULAR) == 0) {
 			int numAnos = atoi(args[1]);
-			numSimulacoes += 1;
 			if (numAnos < 0) {
 				return -1;
 			} else
 				pid = meu_fork(numAnos);
-				listaFilhos[contador] = pid;
-				contador += 1;
+				listaFilhos[numSimulacoes] = pid;
+				numSimulacoes += 1;
 
 			
 		}
