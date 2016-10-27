@@ -42,13 +42,29 @@ int main(int argc, char** argv) {
 	}
 	
 
-
 	char *args[MAXARGS + 1];
 	char buffer[BUFFER_SIZE];
 
 	inicializarContas();
 
 	printf("Bem-vinda/o ao i-banco\n\n");
+
+
+	if (pthread_create(&tid1, NULL, worker, NULL) != 0){
+		printf("Error creating thread.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (pthread_create(&tid2, NULL, worker, NULL) != 0){
+		printf("Error creating thread.\n");
+		exit(EXIT_FAILURE);
+	}
+
+
+	if (pthread_create(&tid3, NULL, worker, NULL) != 0){
+		printf("Error creating thread.\n");
+		exit(EXIT_FAILURE);
+	}
 
 
 	while (1) {
@@ -103,11 +119,6 @@ int main(int argc, char** argv) {
 				continue;
 			}
 
-			if (pthread_create(&tid1, NULL, worker, NULL) != 0){
-				printf("Error creating thread.\n");
-				exit(EXIT_FAILURE);
-			}
-
 			comando_t cmd2;
 			cmd2.operacao = OP_DEBITAR;
 			cmd2.idConta = atoi(args[1]);
@@ -134,11 +145,7 @@ int main(int argc, char** argv) {
 				continue;
 			}
 
-			if (pthread_create(&tid2, NULL, worker, NULL) != 0){
-				printf("Error creating thread.\n");
-				exit(EXIT_FAILURE);
-			}
-
+			
 			idConta = atoi(args[1]);
 			valor = atoi(args[2]);
 
@@ -157,12 +164,6 @@ int main(int argc, char** argv) {
 				printf("%s: Sintaxe inválida, tente de novo.\n",
 						COMANDO_LER_SALDO);
 				continue;
-			}
-
-
-			if (pthread_create(&tid3, NULL, worker, NULL) != 0){
-				printf("Error creating thread.\n");
-				exit(EXIT_FAILURE);
 			}
 
 			idConta = atoi(args[1]);

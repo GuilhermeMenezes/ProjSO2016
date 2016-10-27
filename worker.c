@@ -4,16 +4,19 @@
 
 void *worker(void *arg){
 
-	comando_t executa;
-	executa = buff_pop();
+	while(1){
 
-	if (executa.operacao == OP_DEBITAR){
-		debitar(executa.idConta, executa.valor);
-	}
-	if (executa.operacao == OP_CREDITAR){
-		creditar(executa.idConta, executa.valor);
-	}
-	if (executa.operacao == OP_LERSALDO){
-		lerSaldo(executa.idConta);
+		comando_t executa;
+		executa = buff_pop();
+
+		if (executa.operacao == OP_DEBITAR){
+			debitar(executa.idConta, executa.valor);
+		}
+		if (executa.operacao == OP_CREDITAR){
+			creditar(executa.idConta, executa.valor);
+		}
+		if (executa.operacao == OP_LERSALDO){
+			lerSaldo(executa.idConta);
+		}
 	}
 }
