@@ -5,7 +5,10 @@
 #include <signal.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include "includes.h"
 
+pthread_mutex_t mutex1;
+pthread_mutex_t mutexTransferir;
 #define atrasar() sleep(ATRASO)
 int warning = 0;
 
@@ -23,28 +26,69 @@ void inicializarContas() {
 
 int debitar(int idConta, int valor) {
 	atrasar();
+	pthread_mutex_lock(&mutex1);
 	if (!contaExiste(idConta))
 		return -1;
 	if (contasSaldos[idConta - 1] < valor)
 		return -1;
 	atrasar();
 	contasSaldos[idConta - 1] -= valor;
+	pthread_mutex_unlock(&mutex1);
 	return 0;
 }
 
 int creditar(int idConta, int valor) {
 	atrasar();
+	pthread_mutex_lock(&mutex1);
+	if (!contaExiste(idConta))
+		return -1;
+	contasSaldos[idConta - 1] += valor;
+	pthread_mutex_unlock(&mutex1);
+	return 0;
+}
+
+int lerSaldo(int idConta) {
+	atrasar();
+
+	if (!contaExiste(idConta))
+		return -1;
+
+	return contasSaldos[idConta - 1];
+}
+
+int debitar_sem_mutex(int idConta, int valor) {
+	atrasar();
+	if (!contaExiste(idConta))
+		return -1;
+	if (contasSaldos[idConta - 1] < valor)
+		return -1;
+	atrasar();
+	contasSaldos[idConta - 1] -= valor;
+
+	return 0;
+}
+
+int creditar_sem_mutex(int idConta, int valor) {
+	atrasar();
+	sleep(3);
 	if (!contaExiste(idConta))
 		return -1;
 	contasSaldos[idConta - 1] += valor;
 	return 0;
 }
 
-int lerSaldo(int idConta) {
-	atrasar();
-	if (!contaExiste(idConta))
+int transferir(int idConta, int idContaDestino, int valor) {
+	if (lerSaldo(idConta) < valor) {
 		return -1;
-	return contasSaldos[idConta - 1];
+	} else {
+
+		pthread_mutex_lock(&mutexTransferir);
+		debitar_sem_mutex(idConta, valor);
+		creditar_sem_mutex(idContaDestino, valor);
+		pthread_mutex_unlock(&mutexTransferir);
+		return 0;
+
+	}
 }
 
 void simular(int numAnos) {
@@ -55,10 +99,11 @@ void simular(int numAnos) {
 	int j;
 	int saldoAsomar;
 
+
 	for (i = 0; i <= numAnos && warning != 1; i++) {
 		printf("SIMULACAO: Ano %d \n", i);
 		printf("-----------------\n");
-		printf("WARNING = %d\n",warning );
+
 		for (j = 1; j <= NUM_CONTAS; j++) {
 			int saldoAnterior = lerSaldo(j);
 			if (i == 0) {
@@ -80,33 +125,27 @@ void simular(int numAnos) {
 	}
 }
 
-//SE o prof nao conseguir responder confirmar com o Fernando
 void sairAgora(int signum) {
-	printf("ENTREI NA FUNCAO SAIR AGORA PARA MUDAR O VALOR DO WARNING.\n");
+
 	warning = 1;
-	printf("MUDEI O WARNING PARA 1.\n");
 
 }
 
 int meu_fork(int numAnos) {
 	int pid = 0;
-	pid = fork();
 	signal(SIGUSR2, sairAgora);
+	pid = fork();
 	if (pid == 0) {
-	//	signal(SIGUSR2, sairAgora);
 		simular(numAnos);
-		printf("Simulacao terminada por signal\n");
 		exit(0);
 	}
 
 	else if (pid > 0) {
 
-	} 
-	else if (pid < 0) {
+	} else if (pid < 0) {
 		printf("fork() failed!\n");
 		return 1;
 	}
 	return pid;
 }
-
 

@@ -4,6 +4,7 @@
 typedef struct {
 	int operacao;
 	int idConta;
+	int idContaDestino;
 	int valor;
 } comando_t;
 
